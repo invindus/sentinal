@@ -1,4 +1,4 @@
-# Blog Sentiment Analyzer
+# Sentinal - Blog Sentiment Analyzer
 
 ## Problem Statement
 
