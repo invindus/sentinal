@@ -11,10 +11,12 @@ from app.models.blog import Blog
 from app.models.sentiment import Sentiment
 from app.services.sentiment import analyze_text
 
+# RSS feed makes it easier to scrape the latest post from the feed.
 NVIDIA_FEED_URL = "https://blogs.nvidia.com/feed/"
 
 
 def _strip_xml_namespaces(elem: ET.Element) -> None:
+    """Strip XML namespaces from the element."""
     for el in elem.iter():
         if "}" in el.tag:
             el.tag = el.tag.split("}", 1)[1]
@@ -24,15 +26,19 @@ def parse_nvidia_feed_xml(xml_text: str) -> List[dict]:
     """Parse NVIDIA WordPress RSS; returns list of {title, link, pub_date_raw, categories}."""
     root = ET.fromstring(xml_text)
     _strip_xml_namespaces(root)
+
     channel = root.find("channel")
     if channel is None:
         return []
+
     items: List[dict] = []
     for item in channel.findall("item"):
         title = (item.findtext("title") or "").strip()
         link = (item.findtext("link") or "").strip()
         pub_raw = (item.findtext("pubDate") or "").strip()
+
         categories = []
+
         for cat in item.findall("category"):
             if cat.text:
                 categories.append(cat.text.strip())
@@ -59,6 +65,7 @@ def fetch_nvidia_feed(limit: Optional[int] = None) -> List[dict]:
 
 
 def _parse_rss_pub_date(raw: Optional[str]) -> Optional[datetime]:
+    """Parse the published date from the RSS feed."""
     if not raw:
         return None
     try:
@@ -124,6 +131,7 @@ def scrape_blog():
 
 
 def _parse_published_at(raw: Optional[str]):
+    """Parse the published date from the blog post."""
     if not raw:
         return None
     try:
