@@ -3,7 +3,14 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+# ROUTES
+from app.api import blogs, scrape
+
 app = FastAPI()
+
+# ====== INCLUDE ROUTERS TO ENDPOINTS HERE ========
+app.include_router(scrape.router)
+app.include_router(blogs.router)
 
 origins = [
     'http://localhost:3000'
@@ -21,5 +28,3 @@ app.add_middleware(
 def health():
     return {"status": "ok"}
 
-
-# ====== INCLUDE ROUTERS TO ENDPOINTS HERE ========

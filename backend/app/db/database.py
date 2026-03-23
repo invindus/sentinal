@@ -13,7 +13,14 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base = declarative_base()
 
-Base.metadata.create_all(bind=engine) # remove this after initial create, use alembic migrations
+
+def _register_models(): 
+    from app.models.blog import Blog  # noqa: F401 - ignore unused imports for linting
+    from app.models.sentiment import Sentiment  # noqa: F401
+
+
+_register_models()
+Base.metadata.create_all(bind=engine)  # remove after Alembic migrations
 
 def get_db():
     db = SessionLocal()
