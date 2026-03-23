@@ -1,5 +1,3 @@
-# python -m uvicorn app.main:app --reload
-
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -13,7 +11,8 @@ app.include_router(scrape.router)
 app.include_router(blogs.router)
 
 origins = [
-    'http://localhost:3000'
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
 ]
 
 app.add_middleware(
