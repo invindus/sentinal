@@ -9,21 +9,25 @@ from sqlalchemy.orm import Session
 
 from app.models.blog import Blog
 from app.models.sentiment import Sentiment
-from app.services.sentiment import analyze_text
+from app.services.sentiment import analyze_sentiment
 
 # RSS feed makes it easier to scrape the latest post from the feed.
 NVIDIA_FEED_URL = "https://blogs.nvidia.com/feed/"
 
 
 def _strip_xml_namespaces(elem: ET.Element) -> None:
-    """Strip XML namespaces from the element."""
+    """
+    Strip XML namespaces from the element.
+    """
     for el in elem.iter():
         if "}" in el.tag:
             el.tag = el.tag.split("}", 1)[1]
 
 
 def parse_nvidia_feed_xml(xml_text: str) -> List[dict]:
-    """Parse NVIDIA WordPress RSS; returns list of {title, link, pub_date_raw, categories}."""
+    """
+    Parse NVIDIA WordPress RSS; returns list of {title, link, pub_date_raw, categories}.
+    """
     root = ET.fromstring(xml_text)
     _strip_xml_namespaces(root)
 
@@ -55,7 +59,9 @@ def parse_nvidia_feed_xml(xml_text: str) -> List[dict]:
 
 
 def fetch_nvidia_feed(limit: Optional[int] = None) -> List[dict]:
-    """GET the RSS feed and return up to `limit` entries (newest first)."""
+    """
+    GET the RSS feed and return up to `limit` entries (newest first).
+    """
     response = requests.get(NVIDIA_FEED_URL, timeout=30)
     response.raise_for_status()
     items = parse_nvidia_feed_xml(response.text)
@@ -65,7 +71,9 @@ def fetch_nvidia_feed(limit: Optional[int] = None) -> List[dict]:
 
 
 def _parse_rss_pub_date(raw: Optional[str]) -> Optional[datetime]:
-    """Parse the published date from the RSS feed."""
+    """
+    Parse the published date from the RSS feed.
+    """
     if not raw:
         return None
     try:
@@ -122,7 +130,9 @@ def scrape_article_url(url: str, rss_meta: Optional[dict] = None) -> dict:
 
 
 def scrape_blog():
-    """Backward-compatible: scrape the latest post from the feed."""
+    """
+    Backward-compatible: scrape the latest post from the feed.
+    """
     entries = fetch_nvidia_feed(limit=1)
     if not entries:
         raise ValueError("NVIDIA feed returned no items")
@@ -131,7 +141,9 @@ def scrape_blog():
 
 
 def _parse_published_at(raw: Optional[str]):
-    """Parse the published date from the blog post."""
+    """
+    Parse the published date from the blog post.
+    """
     if not raw:
         return None
     try:
@@ -145,9 +157,11 @@ def _paragraphs_to_text(paragraphs: List[str]) -> str:
 
 
 def ingest_blog_append_sentiment(db: Session, data: dict) -> Blog:
-    """Update or create the blog row, then append a new Sentiment row (history)."""
+    """
+    Update or create the blog row, then append a new Sentiment row (history).
+    """
     text = _paragraphs_to_text(data["content"])
-    sentiment_payload = analyze_text(text)
+    sentiment_payload = analyze_sentiment(text)
     now = datetime.now(timezone.utc)
     published_at = _parse_published_at(data.get("published_at"))
 
@@ -178,7 +192,8 @@ def ingest_blog_append_sentiment(db: Session, data: dict) -> Blog:
             blog_id=blog.id,
             score=sentiment_payload["score"],
             label=sentiment_payload["label"],
-            emotion=sentiment_payload["emotion"],
+            emotion=sentiment_payload["emotion"], # dominant emotion
+            emotion_scores=sentiment_payload["emotions"],
             analyzed_at=sentiment_payload["analyzed_at"],
         )
     )

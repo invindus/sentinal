@@ -1,5 +1,9 @@
 # Sentinal - Blog Sentiment Analyzer
 
+## Setup
+Backend: uvicorn app.main:app --reload
+Frontend: npm run dev
+
 ## Problem Statement
 
 Build a web application that scrapes public blog posts, analyzes their emotional sentiment, and allows users to query topics to understand overall sentiment trends and common emotional themes.
@@ -54,15 +58,17 @@ Build a web application that scrapes public blog posts, analyzes their emotional
 - analyzed_at
 
 ## Project Plan
-1. Init repo
-2. Dockerize backend + database
-3. Create basic schema
-4. Implement Scraper
-5. Save raw text
-6. Sentiment analysis
-7. Store results
-8. Basic UI
-9. Fetch and display sentiment results
-10. Charts
-11. Chatbot
-12. LLM Summaries
+    1. Init repo ✓
+    2. Setup backend, frontend, and database✓
+        2.1. Setup Docker container
+    3. Create basic schema ✓
+    4. Implement Scraper ✓
+    5. Save raw text
+    6. Sentiment analysis
+        6.1. Replacing VADER with RoBERTa for richer analysis
+    7. Store results
+    8. Basic UI
+    9. Fetch and display sentiment results
+    10. Charts
+    11. Chatbot
+    12. LLM Summaries
