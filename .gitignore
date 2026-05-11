@@ -11,3 +11,7 @@ node_modules/
 
 # OS
 .DS_Store
+
+# AI models
+backend/cardiffnlp/
+*.safetensors
